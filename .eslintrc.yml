@@ -1,0 +1,14 @@
+root: true
+env:
+  es6: true
+  node: true
+parserOptions:
+  ecmaVersion: 2020
+extends:
+  - airbnb-base
+  - plugin:prettier/recommended
+rules:
+  "prefer-destructuring": ["error", { "object": true, "array": false }]
+  "no-await-in-loop": ["off"]
+  "no-underscore-dangle": ["off"]
+  "no-console": ["off"]
