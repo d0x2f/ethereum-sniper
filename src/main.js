@@ -262,6 +262,27 @@ async function main() {
   );
   pendingTransactionSubscription.on("error", console.error);
   pendingTransactionSubscription.on("data", newPendingTransaction);
+
+  // Clean up handles on exit
+  let shuttingDown = false;
+  [
+    `exit`,
+    `SIGINT`,
+    `SIGUSR1`,
+    `SIGUSR2`,
+    `uncaughtException`,
+    `SIGTERM`,
+  ].forEach((eventType) => {
+    process.on(eventType, async () => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+      console.log("\nShutting down...");
+      await db.close();
+      web3.currentProvider.connection.close();
+      broadcasters.forEach((b) => b.close());
+      process.exit(0);
+    });
+  });
 }
 
 main();

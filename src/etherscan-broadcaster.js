@@ -16,6 +16,9 @@ class EtherscanBroadcaster {
       apikey: this.apiKey,
     });
   }
+
+  // Stub
+  static close() {}
 }
 
 module.exports = EtherscanBroadcaster;

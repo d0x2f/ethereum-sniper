@@ -12,6 +12,10 @@ class Web3Broadcaster {
     log(`Sending transaction to ${this.name}`);
     return this.web3.eth.sendSignedTransaction(hex);
   }
+
+  close() {
+    this.web3.currentProvider.connection.close();
+  }
 }
 
 module.exports = Web3Broadcaster;
