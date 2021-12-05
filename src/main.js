@@ -12,7 +12,7 @@ const Web3Broadcaster = require("./web3-broadcaster");
 /** BEGIN CONFIGURATION * */
 
 // Path to an sqlite3 database of key pairs.
-const SQLITE_DATABASE_PATH = "../keys.db";
+const SQLITE_DATABASE_PATH = "./keys.db";
 
 // If you have Etherscan or Infura api keys, enter them here.
 // They will be used to relay transactions (optional).

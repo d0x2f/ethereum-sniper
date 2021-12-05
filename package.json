@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/main.js",
     "create-db": "node scripts/create-db.js",
-    "populate-db": "node scripts/populate-8bit-keys.js"
+    "populate-db": "node scripts/populate-db.js"
   },
   "author": "d0x2f",
   "license": "ISC",

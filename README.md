@@ -141,3 +141,12 @@ etherscan
 - `manual: https://etherscan.io/pushTx?hex=0xabcd...abcd`: A link to a
 pre-filled manual submission page on etherscan.
 - Also shown are the transaction parameters with nicely formatted values.
+
+This will be logged upon a successful pilfer.
+
+```
+[2021-12-04T16:03:55.684Z] Pilfer of 1.958eth successful!
+tx:0x43315e89b8b7f8eea44b21a54f44c91bc4cd3a903285e23a1fc1f89abaceecb7 (39ms).
+```
+
+Good luck :)
