@@ -122,7 +122,7 @@ async function buildTransaction(address, key, value) {
       nonce: await web3.eth.getTransactionCount(address),
     };
     const signed = Transaction.fromTxData(params);
-    const hash = signed.hash().toString("hex");
+    const hash = `0x${signed.hash().toString("hex")}`;
     const raw = signed
       .sign(Buffer.from(key.replace("0x", ""), "hex"))
       .serialize();
