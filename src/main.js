@@ -172,20 +172,22 @@ async function newBlock({ number, timestamp }) {
 
   log(`Received block #${number} at T+${(start - blockTime) / 1000}s`);
 
-  const { transactions } = await web3.eth.getBlock(number, true);
+  let { transactions } = await web3.eth.getBlock(number, true);
+
+  // exclude contract deployments
+  transactions = transactions.filter((t) => typeof t.to === "string");
 
   const addresses = transactions
-    .filter((t) => typeof t.to === "string")
     .filter(
       (t) =>
         !waitingForBlock
           .map((w) => w.triggerHash)
-          .includes(t.hash.toString("hex"))
+          .includes(t.hash)
     )
     .map((t) => t.to.toLowerCase());
 
   const sendWaitingTransactions = waitingForBlock
-    .filter((t) => transactions.includes(t.triggerHash))
+    .filter((t) => transactions.map(t => t.hash).includes(t.triggerHash))
     .map((t) =>
       sendTransaction(t).then(() => {
         const index = waitingForBlock.indexOf(t);
@@ -194,7 +196,7 @@ async function newBlock({ number, timestamp }) {
     );
 
   // Remove waiting transactions older than 10 minutes
-  waitingForBlock = waitingForBlock.filter((w) => w.date < Date.now() - 600);
+  waitingForBlock = waitingForBlock.filter((w) => w.date > Date.now() - 600);
 
   const examineBlockTransactions = db.each(
     `SELECT address, key FROM pairs WHERE address IN (${addresses
