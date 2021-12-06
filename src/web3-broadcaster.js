@@ -8,9 +8,9 @@ class Web3Broadcaster {
     this.name = name;
   }
 
-  async sendRawTransaction(hex) {
+  async sendRawTransaction(rawTransaction) {
     log(`Sending transaction to ${this.name}`);
-    return this.web3.eth.sendSignedTransaction(hex);
+    return this.web3.eth.sendSignedTransaction(rawTransaction);
   }
 
   close() {

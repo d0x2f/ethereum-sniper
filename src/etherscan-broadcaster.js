@@ -7,12 +7,12 @@ class EtherscanBroadcaster {
     this.apiKey = apiKey;
   }
 
-  async sendRawTransaction(hex) {
+  async sendRawTransaction(rawTransaction) {
     log("Sending transaction to Etherscan");
     return got("https://api.etherscan.io/api", {
       module: "proxy",
       action: "eth_sendRawTransaction",
-      hex,
+      hex: `0x${rawTransaction.toString("hex")}`,
       apikey: this.apiKey,
     });
   }

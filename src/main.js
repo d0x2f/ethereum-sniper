@@ -77,7 +77,7 @@ function niceTransactionJson(transaction) {
 // Also prints links to etherscan to view the transaction and to submit it manually.
 function sendTransaction(signedTransaction) {
   log(`Attempting pilfer:`);
-  console.log(`link: https://etherscan.io/tx/0x${signedTransaction.hash}`);
+  console.log(`link: https://etherscan.io/tx/${signedTransaction.hash}`);
   const transactionHex = signedTransaction.raw.toString("hex");
   console.log(`manual: https://etherscan.io/pushTx?hex=0x${transactionHex}`);
   console.log(niceTransactionJson(signedTransaction.params));
@@ -97,9 +97,7 @@ function sendTransaction(signedTransaction) {
             `\ntx:${transactionHash} (${end - start}ms).`
         );
       }),
-    ...broadcasters.map((b) =>
-      b.sendRawTransaction(signedTransaction.raw.toString("hex"))
-    ),
+    ...broadcasters.map((b) => b.sendRawTransaction(signedTransaction.raw)),
   ]).catch((err) => console.error(err.message));
 }
 
