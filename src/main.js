@@ -1,7 +1,7 @@
 const sqlite3 = require("sqlite3");
 const sqlite = require("sqlite");
 const Web3 = require("web3");
-const { Transaction } = require("@ethereumjs/tx");
+const { FeeMarketEIP1559Transaction } = require("@ethereumjs/tx");
 
 const { BN } = Web3.utils;
 
@@ -65,7 +65,14 @@ function niceTransactionJson(transaction) {
     {
       ...transaction,
       gasLimit: transaction.gasLimit.toString(10),
-      gasPrice: `${Web3.utils.fromWei(transaction.gasPrice, "gwei")} gwei`,
+      maxFeePerGas: `${Web3.utils.fromWei(
+        transaction.maxFeePerGas,
+        "gwei"
+      )} gwei`,
+      maxPriorityFeePerGas: `${Web3.utils.fromWei(
+        transaction.maxPriorityFeePerGas,
+        "gwei"
+      )} gwei`,
       value: `${Web3.utils.fromWei(transaction.value, "ether")} eth`,
     },
     null,
@@ -115,11 +122,12 @@ async function buildTransaction(address, key, value) {
     const params = {
       to: PILFER_ADDRESS,
       gasLimit: GAS_LIMIT,
-      gasPrice,
+      maxFeePerGas: gasPrice,
+      maxPriorityFeePerGas: gasPrice,
       value: pilferValue,
       nonce: await web3.eth.getTransactionCount(address),
     };
-    const signed = Transaction.fromTxData(params).sign(
+    const signed = FeeMarketEIP1559Transaction.fromTxData(params).sign(
       Buffer.from(key.replace("0x", ""), "hex")
     );
     const hash = `0x${signed.hash().toString("hex")}`;
@@ -178,16 +186,11 @@ async function newBlock({ number, timestamp }) {
   transactions = transactions.filter((t) => typeof t.to === "string");
 
   const addresses = transactions
-    .filter(
-      (t) =>
-        !waitingForBlock
-          .map((w) => w.triggerHash)
-          .includes(t.hash)
-    )
+    .filter((t) => !waitingForBlock.map((w) => w.triggerHash).includes(t.hash))
     .map((t) => t.to.toLowerCase());
 
   const sendWaitingTransactions = waitingForBlock
-    .filter((t) => transactions.map(t => t.hash).includes(t.triggerHash))
+    .filter((t) => transactions.map((tx) => tx.hash).includes(t.triggerHash))
     .map((t) =>
       sendTransaction(t).then(() => {
         const index = waitingForBlock.indexOf(t);
