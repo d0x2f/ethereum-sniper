@@ -78,14 +78,14 @@ function niceTransactionJson(transaction) {
 function sendTransaction(signedTransaction) {
   log(`Attempting pilfer:`);
   console.log(`link: https://etherscan.io/tx/${signedTransaction.hash}`);
-  const transactionHex = signedTransaction.raw.toString("hex");
-  console.log(`manual: https://etherscan.io/pushTx?hex=0x${transactionHex}`);
+  const transactionHex = `0x${signedTransaction.raw.toString("hex")}`;
+  console.log(`manual: https://etherscan.io/pushTx?hex=${transactionHex}`);
   console.log(niceTransactionJson(signedTransaction.params));
 
   const start = new Date();
   return Promise.all([
     web3.eth
-      .sendSignedTransaction(signedTransaction.raw)
+      .sendSignedTransaction(transactionHex)
       .then(({ transactionHash }) => {
         const end = new Date();
         const ethValue = Web3.utils.fromWei(
@@ -97,7 +97,7 @@ function sendTransaction(signedTransaction) {
             `\ntx:${transactionHash} (${end - start}ms).`
         );
       }),
-    ...broadcasters.map((b) => b.sendRawTransaction(signedTransaction.raw)),
+    ...broadcasters.map((b) => b.sendSignedTransaction(transactionHex)),
   ]).catch((err) => console.error(err.message));
 }
 
@@ -119,11 +119,11 @@ async function buildTransaction(address, key, value) {
       value: pilferValue,
       nonce: await web3.eth.getTransactionCount(address),
     };
-    const signed = Transaction.fromTxData(params);
+    const signed = Transaction.fromTxData(params).sign(
+      Buffer.from(key.replace("0x", ""), "hex")
+    );
     const hash = `0x${signed.hash().toString("hex")}`;
-    const raw = signed
-      .sign(Buffer.from(key.replace("0x", ""), "hex"))
-      .serialize();
+    const raw = signed.serialize();
     return { params, hash, raw };
   }
   log(`Not enough eth to cover fees, ignoring transaction to ${address}`);
