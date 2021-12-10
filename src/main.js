@@ -199,7 +199,7 @@ async function newBlock({ number, timestamp }) {
     );
 
   // Remove waiting transactions older than 10 minutes
-  waitingForBlock = waitingForBlock.filter((w) => w.date > Date.now() - 600);
+  waitingForBlock = waitingForBlock.filter((w) => w.date > Date.now() - 600000);
 
   const examineBlockTransactions = db.each(
     `SELECT address, key FROM pairs WHERE address IN (${addresses
