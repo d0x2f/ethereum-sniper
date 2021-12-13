@@ -44,9 +44,13 @@ const FEE_RATIO_DENOMINATOR = new BN(5);
 
 let db;
 let waitingForBlock = [];
+const blockDelays = [];
 
 const web3 = new Web3(WEB3_WEBSOCKET_ADDRESS);
 const broadcasters = [];
+broadcasters.push(
+  new Web3Broadcaster("Ethermine", `https://rpc.ethermine.org/`)
+);
 if (ETHERSCAN_API_KEY) {
   broadcasters.push(new EtherscanBroadcaster(ETHERSCAN_API_KEY));
 }
@@ -177,8 +181,19 @@ async function examineMempoolCandidate(address, key, transaction) {
 async function newBlock({ number, timestamp }) {
   const start = new Date();
   const blockTime = new Date(timestamp * 1000);
+  const blockDelay = start - blockTime;
+  blockDelays.push(blockDelay);
+  if (blockDelays.length > 100) {
+    blockDelays.shift();
+  }
+  const averageBlockDelay =
+    blockDelays.reduce((acc, n) => acc + n) / blockDelays.length;
 
-  log(`Received block #${number} at T+${(start - blockTime) / 1000}s`);
+  log(
+    `Received block #${number} at T+${blockDelay / 1000}s (μ${(
+      averageBlockDelay / 1000
+    ).toFixed(3)}s)`
+  );
 
   let { transactions } = await web3.eth.getBlock(number, true);
 
